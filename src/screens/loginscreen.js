@@ -1,12 +1,15 @@
 import React from 'react';
-import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TextInput, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
 export default function LoginScreen({ navigation }) {
     return (
         <View style={styles.container}>
             {/* Logo */}
             <View style={styles.logoContainer}>
-                <Text style={styles.logo}>🎵</Text>
+                <Image
+                    source={require('../../assets/music_note.png')} // Path to your image
+                    style={styles.logo}
+                />
             </View>
 
             {/* Input Fields */}
@@ -54,6 +57,7 @@ const styles = StyleSheet.create({
     logo: {
         fontSize: 80,
         color: '#cc6e3b', // Orange-red logo color
+        transform: [{ scale: 0.25 }],
     },
     input: {
         width: '80%',
