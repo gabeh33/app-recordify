@@ -1,7 +1,46 @@
-import React from 'react';
-import { View, TextInput, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 export default function LoginScreen({ navigation }) {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+
+    // Handle Login
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post('https://recordify-6d6489fbb314.herokuapp.com/auth/login', {
+                'username': username,
+                'password': password,
+            });
+            
+            console.log(response.data);
+            if (response.data.success) {
+                // Save token to AsyncStorage
+                await AsyncStorage.setItem('token', response.data.token);
+
+                // Navigate to Home screen
+                navigation.navigate('Home');
+            } else {
+                setError(response.data.message || 'Login failed.');
+            }
+        } catch (err) {
+            // Axios error handling
+            if (err.response) {
+                // Server responded with a status code not in the range 2xx
+                setError(err.response.data.message || 'An error occurred.');
+            } else if (err.request) {
+                // No response received
+                setError('No response from server. Check your network.');
+            } else {
+                // Something else went wrong
+                setError('An unexpected error occurred.');
+        }
+        }
+    };
+
     return (
         <View style={styles.container}>
             {/* Logo */}
@@ -17,18 +56,24 @@ export default function LoginScreen({ navigation }) {
                 placeholder="Username..."
                 style={styles.input}
                 placeholderTextColor="#999"
+                value={username}
+                onChangeText={(text) => setUsername(text)}
             />
             <TextInput
                 placeholder="Password..."
                 style={styles.input}
                 placeholderTextColor="#999"
                 secureTextEntry
+                value={password} // This binds the input value to the state
+                onChangeText={(text) => setPassword(text)} // Updates state when the user types
             />
+
+            {error ? <Text style={styles.error}>{error}</Text> : null}
 
             {/* Login Button */}
             <TouchableOpacity
                 style={styles.loginButton}
-                onPress={() => navigation.navigate('Home')} // Navigate to Home Screen
+                onPress={handleLogin} // Navigate to Home Screen
             >
                 <Text style={styles.loginButtonText}>LOG IN</Text>
             </TouchableOpacity>

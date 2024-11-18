@@ -1,12 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import Footer from '../components/Footer_bar';
 
-export default function HomeScreen() {
+
+export default function HomeScreen({ navigation }) {
     return (
         <View style={styles.container}>
             {/* Search Icon */}
             <View style={styles.header}>
-                <Text style={styles.searchIcon}>🔍</Text>
+                <Text style={styles.searchIcon}>{'🔍'}</Text>
             </View>
 
             {/* Content */}
@@ -15,17 +17,7 @@ export default function HomeScreen() {
             </View>
 
             {/* Footer Navigation */}
-            <View style={styles.footer}>
-                <TouchableOpacity style={styles.iconContainer}>
-                    <Text style={styles.icon}>🎵</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.iconContainer}>
-                    <Text style={styles.icon}>🎟️</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.iconContainer}>
-                    <Text style={styles.icon}>👤</Text>
-                </TouchableOpacity>
-            </View>
+            <Footer navigation={navigation}/>
         </View>
     );
 }
@@ -54,24 +46,5 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
         color: '#333',
-    },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        backgroundColor: '#cc8961', // Orange footer background
-        height: 80,
-    },
-    iconContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        backgroundColor: '#1c2d5c', // Dark blue background
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    icon: {
-        fontSize: 24,
-        color: '#ffffff',
     },
 });
