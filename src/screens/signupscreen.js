@@ -1,18 +1,34 @@
 import React from 'react';
-import { View, TextInput, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Image,
+    Keyboard,
+    TouchableWithoutFeedback,
+    Platform,
+    Dimensions,
+} from 'react-native';
+
+const { height } = Dimensions.get('window'); // Get screen height for dynamic styling
 
 export default function SignupScreen({ navigation }) {
     return (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.container}>
-            {/* Logo */}
+            {/* Logo Section */}
             <View style={styles.logoContainer}>
-            <Image
-                    source={require('../../assets/music_note.png')} // Path to your image
+                <Image
+                    source={require('../../assets/music_note.png')}
                     style={styles.logo}
                 />
             </View>
 
+
             {/* Input Fields */}
+            <View style={styles.formContainer}>
             <TextInput
                 placeholder="Username..."
                 style={styles.input}
@@ -42,24 +58,33 @@ export default function SignupScreen({ navigation }) {
             >
                 <Text style={styles.backButtonText}>Back to Login</Text>
             </TouchableOpacity>
+            </View>
         </View>
+        </TouchableWithoutFeedback>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f5e9c8', // Beige background
+        backgroundColor: '#f5e9c8',
     },
     logoContainer: {
-        marginBottom: 40,
+        height: height * 0.2, // 20% of the screen height
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginBottom: 20, // Space between logo and form
     },
     logo: {
-        fontSize: 80,
-        color: '#cc6e3b', // Orange-red logo color
-        transform: [{ scale: 0.25 }],
+        width: 100,
+        height: 100,
+        resizeMode: 'contain',
+    },
+    formContainer: {
+        height: height * 0.5, // 50% of the screen height
+        justifyContent: 'center', // Space out inputs and buttons
+        alignItems: 'center',
+        paddingHorizontal: 20,
     },
     input: {
         width: '80%',
@@ -78,21 +103,23 @@ const styles = StyleSheet.create({
     signupButton: {
         width: '80%',
         height: 50,
-        backgroundColor: '#cc6e3b', // Orange-red button color
+        backgroundColor: '#ffffff',
         borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 20,
+        borderWidth: 2,
+        borderColor: '#cc6e3b',
+        marginTop: 10,
         shadowColor: '#000',
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.1,
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 4,
-        elevation: 3,
+        elevation: 2,
     },
     signupButtonText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#ffffff',
+        color: '#cc6e3b',
     },
     backButton: {
         marginTop: 20,
