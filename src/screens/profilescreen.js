@@ -1,8 +1,95 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Image,
+    ScrollView,
+    Alert,
+} from 'react-native';
 import Footer from '../components/Footer_bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-export default function ProfileScreen( {navigation}) {
+export default function ProfileScreen({ navigation }) {
+    const [userData, setUserData] = useState(null); // Holds user-specific data
+    const [profilePicture, setProfilePicture] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // Validate token and fetch user data
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                // Get token from AsyncStorage
+                const token = await AsyncStorage.getItem('token');
+
+                if (!token) {
+                    Alert.alert('Error', 'You need to log in.');
+                    navigation.navigate('Login');
+                    return;
+                }
+
+                // Validate token and fetch user data
+                const response = await axios.get(
+                    'https://recordify-6d6489fbb314.herokuapp.com/profile',
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (response.data.success) {
+                    setUserData(response.data.user); // Update state with user data
+                    // Fetch profile picture
+                    console.log("trying to get profile picture");
+                    const pictureResponse = await axios.get(
+                        'https://recordify-6d6489fbb314.herokuapp.com/profile/picture',
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                            responseType: 'arraybuffer', // Expect binary data
+                        }
+                    );
+                    console.log(pictureResponse.data);
+                    const base64Image = `data:image/png;base64,${Buffer.from(
+                        pictureResponse,
+                        'binary'
+                    ).toString('base64')}`;
+                    setProfilePicture(base64Image); // Convert to base64 for Image component
+                } else {
+                    Alert.alert('Error', response.data.message || 'Unauthorized access');
+                    navigation.navigate('Login');
+                }
+            } catch (error) {
+                Alert.alert(
+                    'Error',
+                    error.response?.data?.message || 'Unable to fetch user data.'
+                );
+                navigation.navigate('Login');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfileData();
+    }, [navigation]);
+
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <Text>Loading...</Text>
+            </View>
+        );
+    }
+
+    if (!userData) {
+        return null; // Render nothing if no user data is available
+    }
+
     return (
         <View style={styles.container}>
             {/* Header Section */}
@@ -18,22 +105,24 @@ export default function ProfileScreen( {navigation}) {
             <View style={styles.profileSection}>
                 {/* Avatar */}
                 <Image
-                    source={require('../../assets/avatar.png')} // Replace with your avatar image
+                    source={
+                        profilePicture
+                            ? { uri: profilePicture }
+                            : require('../../assets/avatar.png') // Fallback avatar
+                    }
                     style={styles.avatar}
                 />
 
                 {/* Username and Info */}
                 <View style={styles.userInfo}>
-                    <Text style={styles.username}>@JESSE</Text>
-                    <Text style={styles.userDetails}>Music Enthusiast 🎵</Text>
-                    <Text style={styles.groupies}>1,001 Groupies 🌟</Text>
+                    <Text style={styles.username}>@{userData.username}</Text>
+                    <Text style={styles.userDetails}>{userData.bio || 'No bio available.'}</Text>
+                    <Text style={styles.groupies}>{userData.groupies} Groupies 🌟</Text>
                 </View>
             </View>
 
             {/* Bio Section */}
-            <Text style={styles.bio}>
-                One sentence about you, your music taste, or a hot take in the music world.
-            </Text>
+            <Text style={styles.bio}>{userData.bio || 'Tell us something about yourself!'}</Text>
 
             {/* Main Content */}
             <ScrollView contentContainerStyle={styles.mainContent}>
@@ -70,8 +159,16 @@ export default function ProfileScreen( {navigation}) {
                 </Text>
             </ScrollView>
 
+            {/* Edit Profile Button */}
+            <TouchableOpacity
+                style={styles.editProfileButton}
+                onPress={() => navigation.navigate('EditProfile')}
+            >
+                <Text style={styles.editProfileButtonText}>Edit Profile</Text>
+            </TouchableOpacity>
+
             {/* Footer Navigation */}
-            <Footer navigation={navigation}/>
+            <Footer navigation={navigation} />
         </View>
     );
 }
@@ -82,6 +179,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F5E9C8',
     },
     header: {
+        paddingTop: 75,
         padding: 20,
         alignItems: 'center',
     },
@@ -154,23 +252,16 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 10,
     },
-    footer: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        height: 80,
-        backgroundColor: '#D73F27',
-    },
-    footerButton: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#FFFFFF',
-        justifyContent: 'center',
+    editProfileButton: {
+        margin: 20,
+        padding: 15,
+        backgroundColor: '#1C2D5C', // Dark blue
+        borderRadius: 10,
         alignItems: 'center',
     },
-    footerIcon: {
-        fontSize: 24,
-        color: '#1C2D5C',
+    editProfileButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
 });
