@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -8,58 +8,121 @@ import {
     Image,
     Keyboard,
     TouchableWithoutFeedback,
-    Platform,
     Dimensions,
 } from 'react-native';
+import axios from 'axios';
 
-const { height } = Dimensions.get('window'); // Get screen height for dynamic styling
+const { height } = Dimensions.get('window');
 
 export default function SignupScreen({ navigation }) {
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [feedback, setFeedback] = useState(''); // Feedback message for success or error
+    const [isSubmitting, setIsSubmitting] = useState(false); // Prevent multiple submissions
+
+    const handleSignup = async () => {
+        setFeedback(''); // Clear previous feedback
+        setIsSubmitting(true);
+
+        try {
+            const response = await axios.post('https://recordify-6d6489fbb314.herokuapp.com/auth/signup', {
+                username,
+                email,
+                password,
+            });
+
+            if (response.data.success) {
+                setFeedback('Signup successful! Redirecting to login...');
+                setTimeout(() => {
+                    navigation.navigate('Login'); // Redirect after 2 seconds
+                }, 2000);
+            } else {
+                setFeedback(response.data.message || 'Signup failed. Please try again.');
+            }
+        } catch (error) {
+            if (error.response) {
+                setFeedback(error.response.data.message || 'An error occurred.');
+            } else if (error.request) {
+                setFeedback('No response from server. Check your network.');
+            } else {
+                setFeedback('An unexpected error occurred.');
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.container}>
-            {/* Logo Section */}
-            <View style={styles.logoContainer}>
-                <Image
-                    source={require('../../assets/music_note.png')}
-                    style={styles.logo}
-                />
+            <View style={styles.container}>
+                {/* Logo Section */}
+                <View style={styles.logoContainer}>
+                    <Image
+                        source={require('../../assets/music_note.png')}
+                        style={styles.logo}
+                    />
+                </View>
+
+                {/* Input Fields */}
+                <View style={styles.formContainer}>
+                    <TextInput
+                        placeholder="Username..."
+                        style={styles.input}
+                        placeholderTextColor="#999"
+                        value={username}
+                        onChangeText={setUsername}
+                    />
+                    <TextInput
+                        placeholder="Email..."
+                        style={styles.input}
+                        placeholderTextColor="#999"
+                        value={email}
+                        onChangeText={setEmail}
+                    />
+                    <TextInput
+                        placeholder="Password..."
+                        style={styles.input}
+                        placeholderTextColor="#999"
+                        secureTextEntry
+                        value={password}
+                        onChangeText={setPassword}
+                    />
+
+                    {/* Feedback Message */}
+                    {feedback ? (
+                        <Text
+                            style={
+                                feedback.includes('successful')
+                                    ? styles.success
+                                    : styles.error
+                            }
+                        >
+                            {feedback}
+                        </Text>
+                    ) : null}
+
+                    {/* Sign Up Button */}
+                    <TouchableOpacity
+                        style={[
+                            styles.signupButton,
+                            isSubmitting && { opacity: 0.5 },
+                        ]}
+                        onPress={handleSignup}
+                        disabled={isSubmitting} // Disable button while submitting
+                    >
+                        <Text style={styles.signupButtonText}>SIGN UP</Text>
+                    </TouchableOpacity>
+
+                    {/* Back to Login */}
+                    <TouchableOpacity
+                        style={styles.backButton}
+                        onPress={() => navigation.goBack()} // Navigate back to Login Screen
+                    >
+                        <Text style={styles.backButtonText}>Back to Login</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-
-
-            {/* Input Fields */}
-            <View style={styles.formContainer}>
-            <TextInput
-                placeholder="Username..."
-                style={styles.input}
-                placeholderTextColor="#999"
-            />
-            <TextInput
-                placeholder="Email..."
-                style={styles.input}
-                placeholderTextColor="#999"
-            />
-            <TextInput
-                placeholder="Password..."
-                style={styles.input}
-                placeholderTextColor="#999"
-                secureTextEntry
-            />
-
-            {/* Sign Up Button */}
-            <TouchableOpacity style={styles.signupButton}>
-                <Text style={styles.signupButtonText}>SIGN UP</Text>
-            </TouchableOpacity>
-
-            {/* Back to Login */}
-            <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => navigation.goBack()} // Navigate back to Login Screen
-            >
-                <Text style={styles.backButtonText}>Back to Login</Text>
-            </TouchableOpacity>
-            </View>
-        </View>
         </TouchableWithoutFeedback>
     );
 }
@@ -82,7 +145,7 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         height: height * 0.5, // 50% of the screen height
-        justifyContent: 'center', // Space out inputs and buttons
+        justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 20,
     },
@@ -126,6 +189,16 @@ const styles = StyleSheet.create({
     },
     backButtonText: {
         fontSize: 16,
-        color: '#cc6e3b', // Orange-red text
+        color: '#cc6e3b',
+    },
+    error: {
+        color: 'red',
+        marginBottom: 10,
+        textAlign: 'center',
+    },
+    success: {
+        color: 'green',
+        marginBottom: 10,
+        textAlign: 'center',
     },
 });
