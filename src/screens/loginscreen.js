@@ -15,7 +15,6 @@ import {
 } from 'react-native';
 
 const { height } = Dimensions.get('window'); // Get screen height for dynamic styling
-
 export default function LoginScreen({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -24,20 +23,26 @@ export default function LoginScreen({ navigation }) {
     // Handle Login
     const handleLogin = async () => {
         try {
+            
             const response = await axios.post('https://recordify-6d6489fbb314.herokuapp.com/auth/login', {
-                username,
-                password,
-            });
+                    username,
+                    password,
+                });
+            
+
+            console.log(response.data);
 
             if (response.data.success) {
-                await AsyncStorage.setItem('token', response.data.token);
-                navigation.navigate('Home');
+                await AsyncStorage.setItem('token', response.data.token); // Store token in async 
+                navigation.navigate('Home'); // Navigate to home screen 
             } else {
                 setError(response.data.message || 'Login failed.');
             }
         } catch (err) {
+            console.error(err);
+
             if (err.response) {
-                setError(err.response.data.message || 'An error occurred.');
+                setError(err.response.data.message);
             } else if (err.request) {
                 setError('No response from server. Check your network.');
             } else {

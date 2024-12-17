@@ -1,3 +1,4 @@
+// Leftmost screen, bottom left on the navigation bar
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Footer from '../components/Footer_bar';

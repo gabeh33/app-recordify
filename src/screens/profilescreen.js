@@ -1,3 +1,4 @@
+// Rightmost screen, bottom right on the navigation bar
 import React, { useEffect, useState } from 'react';
 import {
     View,
@@ -24,9 +25,10 @@ export default function ProfileScreen({ navigation }) {
             try {
                 // Get token from AsyncStorage
                 const token = await AsyncStorage.getItem('token');
-
+                
                 if (!token) {
                     Alert.alert('Error', 'You need to log in.');
+                    console.log("Unable to find token, is the user logged in?");
                     navigation.navigate('Login');
                     return;
                 }
@@ -42,24 +44,10 @@ export default function ProfileScreen({ navigation }) {
                 );
 
                 if (response.data.success) {
+                    console.log("Successfully validated token, attempting to get user data:");
+                    console.log(response.data);
                     setUserData(response.data.user); // Update state with user data
-                    // Fetch profile picture
-                    console.log("trying to get profile picture");
-                    const pictureResponse = await axios.get(
-                        'https://recordify-6d6489fbb314.herokuapp.com/profile/picture',
-                        {
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                            responseType: 'arraybuffer', // Expect binary data
-                        }
-                    );
-                    console.log(pictureResponse.data);
-                    const base64Image = `data:image/png;base64,${Buffer.from(
-                        pictureResponse,
-                        'binary'
-                    ).toString('base64')}`;
-                    setProfilePicture(base64Image); // Convert to base64 for Image component
+                
                 } else {
                     Alert.alert('Error', response.data.message || 'Unauthorized access');
                     navigation.navigate('Login');
@@ -69,7 +57,7 @@ export default function ProfileScreen({ navigation }) {
                     'Error',
                     error.response?.data?.message || 'Unable to fetch user data.'
                 );
-                navigation.navigate('Login');
+                navigation.navigate('Home');
             } finally {
                 setLoading(false);
             }

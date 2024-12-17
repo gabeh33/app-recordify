@@ -1,8 +1,13 @@
+// Middle screen, middle button with ticket icon in the nav bar 
 import React from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, Image } from 'react-native';
 import Footer from '../components/Footer_bar';
 
 export default function TicketScreen( {navigation}) {
+        // Information needed on this screen from the server: 
+        // List of tickets, with their current price
+        // 
+
     return (
         <View style={styles.container}>
             {/* Header Section */}
