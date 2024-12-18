@@ -24,7 +24,7 @@ export default function LoginScreen({ navigation }) {
     const handleLogin = async () => {
         try {
             
-            const response = await axios.post('https://recordify-6d6489fbb314.herokuapp.com/auth/login', {
+            const response = await axios.post('https://recordify-6d6489fbb314.herokuapp.com/login', {
                     username,
                     password,
                 });

@@ -10,7 +10,7 @@ import {
     ScrollView,
     Alert,
 } from 'react-native';
-import Footer from '../components/Footer_bar';
+import Footer from '../components/footer_bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 

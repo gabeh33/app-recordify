@@ -1,16 +1,26 @@
 // Leftmost screen, bottom left on the navigation bar
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Footer from '../components/Footer_bar';
-
+import Footer from '../components/footer_bar';
+import SearchBar from '../components/search_bar';
 
 export default function HomeScreen({ navigation }) {
+    const [searchValue, setSearchValue] = useState('');
+
     return (
         <View style={styles.container}>
             {/* Search Icon */}
             <View style={styles.header}>
                 <Text style={styles.searchIcon}>{'🔍'}</Text>
             </View>
+
+            {/* Search Bar */}
+            <SearchBar 
+                placeholder="Search Profile..."
+                value={searchValue}
+                onChangeText={(text) => setSearchValue(text)}
+                onSearch={() => console.log("Seaching for " + searchValue)}
+            />
 
             {/* Content */}
             <View style={styles.content}>
